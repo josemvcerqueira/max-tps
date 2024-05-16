@@ -5,7 +5,7 @@ import {
 } from '@mysten/sui.js/client';
 import { TransactionBlock } from '@mysten/sui.js/transactions';
 import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519';
-import { SuiObjectRef } from '@mysten/sui.js/dist/cjs/transactions';
+import { SuiObjectRef } from '@mysten/sui.js/client';
 import util from 'util';
 import invariant from 'tiny-invariant';
 
