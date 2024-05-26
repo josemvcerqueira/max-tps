@@ -1,0 +1,11 @@
+[package]
+name = "Fud"
+edition = "2024.beta"
+
+[dependencies]
+# Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/mainnet" }
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/testnet" }
+
+[addresses]
+# fud = "0x76cb819b01abed502bee8a702b4c2d547532c12f25001c9dea795a5e631c26f1" # mainnet 
+fud = "0xf212a9845f5d1949f97ae04f552da78d3836592f772eacf82cb8dff3d55ea520" # testnet 

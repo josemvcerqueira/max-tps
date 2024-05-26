@@ -3,4 +3,5 @@ build
 .vscode
 .idea
 .DS_Store
-build
+pnpm-lock.yaml
+
