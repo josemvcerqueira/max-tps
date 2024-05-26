@@ -18,6 +18,7 @@ module fast_path_lottery::lottery {
     public struct SlotMachine has key, store {
         id: UID,
         owner: address,
+        balance: Balance<FUD>,
         count: u64,
     }
 
@@ -33,24 +34,31 @@ module fast_path_lottery::lottery {
 
     // step 1: participant creates a single slot machine when arriving on the app
     public fun create_slot_machine(ctx: &mut TxContext): SlotMachine {
-        SlotMachine { id: object::new(ctx), owner: ctx.sender(), count: 0 }
+        SlotMachine { 
+            id: object::new(ctx), 
+            owner: ctx.sender(), 
+            balance: balance::zero<FUD>(),
+            count: 0 
+        }
     }
 
     // step 2: [BREAK SUI OPENS] participants send as many fud coins as possible to their own SlotMachine 
 
     // step 3: [BREAK SUI CLOSES] participants can load the lottery with the coins in their SlotMachine 
-    public fun process_coins(lottery: &mut Lottery, machine: &mut SlotMachine, mut to_receive: vector<Receiving<Coin<FUD>>>) {
+    public fun process_coins(machine: &mut SlotMachine, mut to_receive: vector<Receiving<Coin<FUD>>>) {
         while (!to_receive.is_empty()) {
             let receiving = to_receive.pop_back();
             let received = transfer::public_receive(&mut machine.id, receiving);
-            lottery.balance.join(received.into_balance());
+            machine.balance.join(received.into_balance());
             machine.count = machine.count + 1;
         }
     }
 
     // step 4: participants register by adding their SlotMachine to the lottery
-    public fun register(lottery: &mut Lottery, machine: SlotMachine) {
+    public fun register(lottery: &mut Lottery, mut machine: SlotMachine) {
         lottery.total_count = lottery.total_count + machine.count;
+        let value = machine.balance.value();
+        lottery.balance.join(machine.balance.split<FUD>(value));
         lottery.participants.push_back(machine);
     }
 
@@ -65,8 +73,9 @@ module fast_path_lottery::lottery {
 
         let mut number = 0;
         let winner = loop {
-            let SlotMachine { id, owner, count } = lottery.participants.pop_back();
+            let SlotMachine { id, owner, count, balance } = lottery.participants.pop_back();
             id.delete();    
+            balance.destroy_zero();
             number = number + count;
             if (number > rand_number) { break owner }
         };
